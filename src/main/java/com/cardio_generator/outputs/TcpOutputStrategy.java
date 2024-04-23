@@ -5,13 +5,20 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.Executors;
-
+/**
+ * Represents a TCP output strategy for sending data to connected clients over a socket.
+ */
 public class TcpOutputStrategy implements OutputStrategy {
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private PrintWriter out;
-
+    
+    /**
+     * Creates a new TCP output strategy that listens on a specified port for connection requests from clients.
+     * 
+     * @param port The port number (int) to listen on for client connections.
+     */
     public TcpOutputStrategy(int port) {
         try {
             serverSocket = new ServerSocket(port);
@@ -31,7 +38,7 @@ public class TcpOutputStrategy implements OutputStrategy {
             e.printStackTrace();
         }
     }
-
+    
     @Override
     public void output(int patientId, long timestamp, String label, String data) {
         if (out != null) {
