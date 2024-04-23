@@ -39,6 +39,14 @@ public class TcpOutputStrategy implements OutputStrategy {
         }
     }
     
+    /**
+     * Prints the patient's data for the client if they are connected.
+     *
+     * @param patientId The ID of the patient associated with the cardio data.
+     * @param timestamp The timestamp of the cardio data.
+     * @param label     The label describing the type of cardio data.
+     * @param data      The cardio data to be printed.
+     */
     @Override
     public void output(int patientId, long timestamp, String label, String data) {
         if (out != null) {
