@@ -8,10 +8,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-/* Changed from fileOutputStrategy -> FileOutputStrategy
-   Because according to Google Java Style Guide section 5.2.2 class names should be written in UpperCamelCase
-*/
-public class FileOutputStrategy implements OutputStrategy {
+/**
+ * Represents a file output strategy for writing patient's cardio data to files in a specified directory.
+ */
+public class FileOutputStrategy implements OutputStrategy { /* Changed from fileOutputStrategy -> FileOutputStrategy
+    Because according to Google Java Style Guide section 5.2.2 class names should be written in UpperCamelCase */
 
     // changed from BaseDirectory -> baseDirectory, because parameter names are written in lowerCamelCase
     private String baseDirectory;
@@ -19,15 +20,26 @@ public class FileOutputStrategy implements OutputStrategy {
     // changed to camelCase, from file_map -> fileMap
     public final ConcurrentHashMap<String, String> fileMap = new ConcurrentHashMap<>();
 
-    // changed from fileOutputStrategy -> FileOutputStrategy, because the constuctor has the same name as the class
-    public FileOutputStrategy(String baseDirectory) {
+    /**
+     * Creates a new file output strategy with a specified base directory.
+     * 
+     * @param baseDirectory The path (String) to the base directory, where the files will be stored.
+     */
+    public FileOutputStrategy(String baseDirectory) { // changed from fileOutputStrategy -> FileOutputStrategy, because the constuctor has the same name as the class
 
         this.baseDirectory = baseDirectory;
     }
 
-    // changed variable name to camelCase, from timestamp -> timeStamp
+     /**
+     * Writes the patient's cardio data to a file in a specified directory.
+     *
+     * @param patientId The ID of the patient associated with the cardio data.
+     * @param timestamp The timestamp of the cardio data.
+     * @param label     The label describing the type of cardio data.
+     * @param data      The cardio data to be printed.
+     */
     @Override
-    public void output(int patientId, long timeStamp, String label, String data) {
+    public void output(int patientId, long timeStamp, String label, String data) { // changed variable name to camelCase, from timestamp -> timeStamp
         try {
             // Create the directory
             Files.createDirectories(Paths.get(baseDirectory));
