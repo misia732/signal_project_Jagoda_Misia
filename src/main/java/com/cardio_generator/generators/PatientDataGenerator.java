@@ -3,7 +3,7 @@ package com.cardio_generator.generators;
 import com.cardio_generator.outputs.OutputStrategy;
 
 /**
- * This interface specifies a method that a patient data generator needs to implement.
+ * Specifies a method that a patient data generator needs to implement.
  */
 public interface PatientDataGenerator {
 
