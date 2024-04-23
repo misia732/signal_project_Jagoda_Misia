@@ -4,6 +4,9 @@ import java.util.Random;
 
 import com.cardio_generator.outputs.OutputStrategy;
 
+/**
+ * Generates alerts for patients based on a randomized process.
+ */
 public class AlertGenerator implements PatientDataGenerator {
 
     public static final Random randomGenerator = new Random();
@@ -11,10 +14,21 @@ public class AlertGenerator implements PatientDataGenerator {
     //Changed variable name to camelCase; AlertStates -> alertStates
     private boolean[] alertStates; // false = resolved, true = pressed
 
+    /**
+     * Creates new alert generator for a specified number of patients.
+     * 
+     * @param patientCount The number (int) of patients for which alert data will be generated.
+     */
     public AlertGenerator(int patientCount) {
         alertStates = new boolean[patientCount + 1];
     }
 
+    /**
+     * Generates alerts for specific patients identified by an ID using a specified output strategy.
+     * 
+     * @param patientId The ID of a patient (int) for which alert will be generated.
+     * @param outputStrategy The strategy (OutputStrategy) followed to output alerts.
+     */
     @Override
     public void generate(int patientId, OutputStrategy outputStrategy) {
         try {
