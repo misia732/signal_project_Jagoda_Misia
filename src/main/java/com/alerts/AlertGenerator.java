@@ -53,7 +53,7 @@ public class AlertGenerator {
      * @paramalert the alert object containing details about the alert condition
      */
 
-    private void checkLowSaturationAlert(Patient patient, List<PatientRecord> records) {
+    public boolean checkLowSaturationAlert(Patient patient, List<PatientRecord> records) {
         int patientId = patient.getPatientId();
         for (PatientRecord record : records) {
             if (record.getPatientId() == patientId && record.getRecordType().equals("Saturation") &&
@@ -63,34 +63,39 @@ public class AlertGenerator {
                         "Blood oxygen saturation level fell below 92%.",
                         record.getTimestamp()
                 ));
+                return true;
             }
         }
+        return false;
     }
 
-    private void checkRapidDropAlert(Patient patient, List<PatientRecord> records) {
+    public boolean checkRapidDropAlert(Patient patient, List<PatientRecord> records) {
         int lastIndex = records.size() - 1;
         PatientRecord currentRecord = records.get(lastIndex);
+        System.out.println(currentRecord);
 
         // Start from the second last record and iterate backwards
         for (int i = lastIndex; i >= 0; i--) {
-            PatientRecord previousRecord = records.get(i);
+            PatientRecord previousRecord = records.get(i-1);
 
             if (previousRecord.getRecordType().equals("BloodSaturation")) {
                 // Found the previous saturation record
 
                 if ((currentRecord.getTimestamp() - previousRecord.getTimestamp()) <= 600000 &&
-                        (previousRecord.getMeasurementValue() - currentRecord.getMeasurementValue()) >= 5.0) {
+                        ((currentRecord.getMeasurementValue() - previousRecord.getMeasurementValue()) /  previousRecord.getMeasurementValue()) <= - 0.05) {
 
                     triggerAlert(new Alert(
                             patient.getPatientId(),
                             "Blood oxygen saturation level dropped by 5% or more within 10 minutes.",
                             currentRecord.getTimestamp()));
+                    return true;
                 }
 
                 // Exit the loop once we find the first previous saturation record
                 break;
             }
         }
+        return false;
     }
 
     private void triggerAlert(Alert alert) {
@@ -124,7 +129,7 @@ public class AlertGenerator {
     }
 
     private void checkBloodPressureTrend(int patientId){
-        List<PatientRecord> patientRecord = DataStorage.getRecords(patientId, 0, System.currentTimeMillis());
+        List<PatientRecord> patientRecord = dataStorage.getRecords(patientId, 0, System.currentTimeMillis());
 
         ArrayList<PatientRecord> sysArr = new ArrayList<>();
         ArrayList<PatientRecord> diaArr = new ArrayList<>();
@@ -249,4 +254,4 @@ public class AlertGenerator {
     }
 
 }
-}
+

@@ -11,6 +11,9 @@ public class Alert {
         this.patientId = patientId;
         this.condition = condition;
         this.timestamp = timestamp;
+
+        // Print the details of the alert
+        System.out.println("Alert created!!! \nPatient ID: " + patientId + "\nCondition: " + condition + "\nTimestamp: " + timestamp);
     }
 
     public int getPatientId() {
