@@ -12,6 +12,8 @@ import com.cardio_generator.generators.BloodLevelsDataGenerator;
 import com.cardio_generator.generators.ECGDataGenerator;
 import com.cardio_generator.outputs.*;
 import com.cardio_generator.outputs.FileOutputStrategy;
+import com.data_management.DataStorage;
+import com.data_management.PatientRecord;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +55,8 @@ public class HealthDataSimulator {
         Collections.shuffle(patientIds); // Randomize the order of patient IDs
 
         scheduleTasksForPatients(patientIds);
+
+
     }
 
     /**

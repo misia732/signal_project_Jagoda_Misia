@@ -9,6 +9,7 @@ import com.cardio_generator.outputs.OutputStrategy;
  */
 public class AlertGenerator implements PatientDataGenerator {
 
+
     public static final Random randomGenerator = new Random();
 
     //Changed variable name to camelCase; AlertStates -> alertStates
