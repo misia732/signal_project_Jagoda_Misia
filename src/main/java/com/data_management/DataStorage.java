@@ -14,7 +14,7 @@ import com.alerts.AlertGenerator;
  */
 public class DataStorage {
     private Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.
-
+    private String dataToProcess;
     /**
      * Constructs a new instance of DataStorage, initializing the underlying storage
      * structure.
@@ -107,5 +107,10 @@ public class DataStorage {
         for (Patient patient : storage.getAllPatients()) {
             alertGenerator.evaluateData(patient);
         }
+    }
+
+    public void storeData(String line) {
+
+        dataToProcess += line;
     }
 }
