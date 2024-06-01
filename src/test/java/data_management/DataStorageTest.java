@@ -28,34 +28,33 @@ class DataStorageTest {
     }
 
     @Test
-    void shouldReturnLowSaturationAlert() {
+    void testLowSaturationAlert() {
 
         DataStorage storage = new DataStorage();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         Patient patient = new Patient(1);
+        Patient patient2 = new Patient(2);
+        Patient patient3 = new Patient(3);
 
-        storage.addPatientData(1, 91, "Saturation", 1714376789050L);
+        storage.addPatientData(1, 92, "Saturation", 1714376789050L);
+        storage.addPatientData(2, 91, "Saturation", 1714376789050L);
+        storage.addPatientData(3, 93, "Saturation", 1714376789050L);
 
         List<PatientRecord> records = storage.getRecords(1, 1714376789050L, 1714376789051L);
+        List<PatientRecord> records2 = storage.getRecords(2, 1714376789050L, 1714376789051L);
+        List<PatientRecord> records3 = storage.getRecords(3, 1714376789050L, 1714376789051L);
 
-        assertTrue(alertGenerator.checkLowSaturationAlert(patient, records)); // Check if the low saturation alert is triggered
+        // checking edge case, should not trigger alert
+        assertFalse(alertGenerator.checkLowSaturationAlert(patient, records));
+
+        // checking low saturation, should trigger alert
+        assertTrue(alertGenerator.checkLowSaturationAlert(patient2, records2));
+
+        // checking healthy state, should not trigger alert
+        assertFalse(alertGenerator.checkLowSaturationAlert(patient3, records3));
 
     }
 
-    @Test
-    void shouldNotReturnLowSaturationAlert() {
-
-        DataStorage storage = new DataStorage();
-        AlertGenerator alertGenerator = new AlertGenerator(storage);
-        Patient patient = new Patient(1);
-
-        storage.addPatientData(2, 93, "Saturation", 1714376789050L);
-
-        List<PatientRecord> records = storage.getRecords(1, 1714376789050L, 1714376789051L);
-
-        assertFalse(alertGenerator.checkLowSaturationAlert(patient, records)); // Check if the low saturation alert is triggered
-
-    }
 
     @Test
     void testSaturationDrop() {
@@ -229,8 +228,38 @@ class DataStorageTest {
 
     }
 
+    @Test
+    void testHypotensiveApoxemiaAlert() {
+
+        DataStorage storage = new DataStorage();
+        AlertGenerator alertGenerator = new AlertGenerator(storage);
+        Patient patient = new Patient(1);
+        Patient patient2 = new Patient(2);
+        Patient patient3 = new Patient(3);
+
+        storage.addPatientData(1, 92, "Saturation", 1714376789050L);
+        storage.addPatientData(1, 90, "SystolicPressure", 1714376789050L);
+
+        storage.addPatientData(2, 91, "Saturation", 1714376789050L);
+        storage.addPatientData(2, 89, "SystolicPressure", 1714376789050L);
+
+        storage.addPatientData(3, 93, "Saturation", 1714376789050L);
+        storage.addPatientData(3, 91, "SystolicPressure", 1714376789050L);
+
+        List<PatientRecord> records = storage.getRecords(1, 1714376789050L, 1714376789051L);
+        List<PatientRecord> records2 = storage.getRecords(2, 1714376789050L, 1714376789051L);
+        List<PatientRecord> records3 = storage.getRecords(3, 1714376789050L, 1714376789051L);
+
+        // testing edge cases, should not trigger alert
+        assertFalse(alertGenerator.checkHypotensiveHypoxemiaAlert(patient, records));
+
+        // testing critical state, should trigger alert
+        assertTrue(alertGenerator.checkHypotensiveHypoxemiaAlert(patient2, records2));
+
+        // testing healthy state, should not trigger alert
+        assertFalse(alertGenerator.checkHypotensiveHypoxemiaAlert(patient3, records3));
 
 
-
+    }
 
 }

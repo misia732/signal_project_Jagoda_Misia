@@ -69,6 +69,35 @@ public class AlertGenerator {
         return false;
     }
 
+    public boolean checkHypotensiveHypoxemiaAlert(Patient patient, List<PatientRecord> records) {
+        int patientId = patient.getPatientId();
+        boolean lowSaturation = false;
+        boolean lowBloodPressure = false;
+
+        for (PatientRecord record : records) {
+            if (record.getPatientId() == patientId) {
+                if (record.getRecordType().equals("Saturation") && record.getMeasurementValue() < 92.0) {
+                    lowSaturation = true;
+                }
+                if (record.getRecordType().equals("SystolicPressure") && record.getMeasurementValue() < 90.0) {
+                    lowBloodPressure = true;
+                }
+            }
+
+            if (lowSaturation && lowBloodPressure) {
+                triggerAlert(new Alert(
+                        patientId,
+                        "Hypotensive Hypoxemia Alert: Blood oxygen saturation level fell below 92% and systolic blood pressure fell below 90 mmHg.",
+                        record.getTimestamp()
+
+                ));
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public boolean checkRapidDropAlert(Patient patient, List<PatientRecord> records) {
         int lastIndex = records.size() - 1;
         PatientRecord currentRecord = records.get(lastIndex);
