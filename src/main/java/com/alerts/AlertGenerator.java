@@ -1,11 +1,11 @@
 package com.alerts;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.data_management.DataStorage;
 import com.data_management.Patient;
 import com.data_management.PatientRecord;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The {@code AlertGenerator} class is responsible for monitoring patient data
@@ -128,129 +128,126 @@ public class AlertGenerator {
         manualAlert.untriggerAlert(patientId);
     }
 
-    private void checkBloodPressureTrend(int patientId){
-        List<PatientRecord> patientRecord = dataStorage.getRecords(patientId, 0, System.currentTimeMillis());
+    public boolean checkBloodPressureTrend(Patient patient, List<PatientRecord> records) {
+    List<PatientRecord> patientRecord = records;
 
-        ArrayList<PatientRecord> sysArr = new ArrayList<>();
-        ArrayList<PatientRecord> diaArr = new ArrayList<>();
+    List<Double> sysValues = new ArrayList<>();
+    List<Double> diaValues = new ArrayList<>();
 
-        int sysToFind = 3;
-        int diaToFind = 3;
+    for (int i = patientRecord.size() - 1; i >= 0; i--) {
+        PatientRecord lastRecord = patientRecord.get(i);
 
-        for (int i = 1; i <= patientRecord.size(); i++){
-
-            PatientRecord lastRecord = patientRecord.get(patientRecord.size() - i);
-
-            if (sysToFind > 0 && lastRecord.getRecordType().equals("SystolicPressure")){
-                sysArr.add(lastRecord);
-                sysToFind--;
-            } else if (diaToFind > 0 && lastRecord.getRecordType().equals("DiastolicPressure")){
-                diaArr.add(lastRecord);
-                diaToFind--;
-            }
-
-            if(sysToFind <= 0 && diaToFind <=0) break;
-
+        if (lastRecord.getRecordType().equals("SystolicPressure") && sysValues.size() < 3) {
+            sysValues.add(lastRecord.getMeasurementValue());
+        } else if (lastRecord.getRecordType().equals("DiastolicPressure") && diaValues.size() < 3) {
+            diaValues.add(lastRecord.getMeasurementValue());
         }
 
-        if ((sysArr.get(0).getMeasurementValue() - sysArr.get(1).getMeasurementValue() > 10 && sysArr.get(1).getMeasurementValue() - sysArr.get(2).getMeasurementValue() > 10) ||
-                (sysArr.get(2).getMeasurementValue() - sysArr.get(1).getMeasurementValue() > 10 && sysArr.get(1).getMeasurementValue() - sysArr.get(0).getMeasurementValue() > 10)) {
-            triggerAlert(new Alert(patientId, "Blood Pressure Systolic Trend Alert", System.currentTimeMillis()));
+        if (sysValues.size() >= 3 && diaValues.size() >= 3) {
+            break;
         }
-
-        if ((diaArr.get(0).getMeasurementValue() - diaArr.get(1).getMeasurementValue() > 10 && diaArr.get(1).getMeasurementValue() - diaArr.get(2).getMeasurementValue() > 10) ||
-                (diaArr.get(2).getMeasurementValue() - diaArr.get(1).getMeasurementValue() > 10 && diaArr.get(1).getMeasurementValue() - diaArr.get(0).getMeasurementValue() > 10)) {
-            triggerAlert(new Alert(patientId, "Blood Pressure Diastolic Trend Alert", System.currentTimeMillis()));
-        }
-
     }
 
-    private void checkBloodPressureCriticalThreshold(int patientId){
-
-        List<PatientRecord> patientRecord = dataStorage.getRecords(patientId, 0, System.currentTimeMillis());
-
-        ArrayList<PatientRecord> sysArr = new ArrayList<>();
-        ArrayList<PatientRecord> diaArr = new ArrayList<>();
-
-        int sysToFind = 1;
-        int diaToFind = 1;
-
-        for (int i = 1; i <= patientRecord.size(); i++){
-
-            PatientRecord lastRecord = patientRecord.get(patientRecord.size() - i);
-
-            if (sysToFind > 0 && lastRecord.getRecordType().equals("SystolicPressure")){
-                sysArr.add(lastRecord);
-                sysToFind--;
-            } else if (diaToFind > 0 && lastRecord.getRecordType().equals("DiastolicPressure")){
-                diaArr.add(lastRecord);
-                diaToFind--;
-            }
-
-            if(sysToFind <= 0 && diaToFind <=0) break;
-
+    if (sysValues.size() == 3) {
+        if ((sysValues.get(0) - sysValues.get(1) > 10 && sysValues.get(1) - sysValues.get(2) > 10) ||
+            (sysValues.get(2) - sysValues.get(1) > 10 && sysValues.get(1) - sysValues.get(0) > 10)) {
+            triggerAlert(new Alert(patient.getPatientId(), "Blood Pressure Trend Alert", System.currentTimeMillis()));
+            return true;
         }
-
-        if(sysArr.get(0).getMeasurementValue() > 180 || sysArr.get(0).getMeasurementValue() < 90){
-            triggerAlert(new Alert(patientId, "Blood Pressure Systolic Threshold Alert", System.currentTimeMillis()));
-        }
-
-        if(diaArr.get(0).getMeasurementValue() > 120 || diaArr.get(0).getMeasurementValue() < 60){
-            triggerAlert(new Alert(patientId, "Blood Pressure Diastolic Threshold Alert", System.currentTimeMillis()));
-        }
-
     }
 
-    private void checkECG(int patientId){
+    if (diaValues.size() == 3) {
+        if ((diaValues.get(0) - diaValues.get(1) > 10 && diaValues.get(1) - diaValues.get(2) > 10) ||
+            (diaValues.get(2) - diaValues.get(1) > 10 && diaValues.get(1) - diaValues.get(0) > 10)) {
+            triggerAlert(new Alert(patient.getPatientId(), "Blood Pressure Trend Alert", System.currentTimeMillis()));
+            return true;
+        }
+    }
 
-        List<PatientRecord> patientRecord = dataStorage.getRecords(patientId, 0, System.currentTimeMillis());
+    return false;
+    }
 
+    public boolean checkBloodPressureCriticalThreshold(Patient patient, List<PatientRecord> records) {
+        List<PatientRecord> patientRecord = records;
+
+        Double sysValue = null;
+        Double diaValue = null;
+
+        for (int i = patientRecord.size() - 1; i >= 0; i--) {
+            PatientRecord lastRecord = patientRecord.get(i);
+
+            if (sysValue == null && lastRecord.getRecordType().equals("SystolicPressure")) {
+                sysValue = lastRecord.getMeasurementValue();
+            } else if (diaValue == null && lastRecord.getRecordType().equals("DiastolicPressure")) {
+                diaValue = lastRecord.getMeasurementValue();
+            }
+
+            if (sysValue != null && diaValue != null) {
+                break;
+            }
+        }
+
+        if (sysValue != null && (sysValue > 180 || sysValue < 90)) {
+            triggerAlert(new Alert(patient.getPatientId(), "Blood Pressure Systolic Threshold Alert", System.currentTimeMillis()));
+            return true;
+        }
+
+        if (diaValue != null && (diaValue > 120 || diaValue < 60)) {
+            triggerAlert(new Alert(patient.getPatientId(), "Blood Pressure Diastolic Threshold Alert", System.currentTimeMillis()));
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean checkECG(Patient patient, List<PatientRecord> records) {
+        List<PatientRecord> patientRecord = records;
+    
         PatientRecord lastRecord = null;
-        ArrayList<PatientRecord> ecgAcrossOneMinute = new ArrayList<>();
-
-        int numberOfRecordsToFind = 1;
-
-        for (int i = 1; i <= patientRecord.size(); i++){
-
-            if (patientRecord.get(patientRecord.size() - i).getRecordType().equals("ECG")){
-                lastRecord = patientRecord.get(patientRecord.size() - i);
-                numberOfRecordsToFind --;
+    
+        // Find the most recent ECG record
+        for (int i = patientRecord.size() - 1; i >= 0; i--) {
+            if (patientRecord.get(i).getRecordType().equals("ECG")) {
+                lastRecord = patientRecord.get(i);
+                break;
             }
-
-            if(numberOfRecordsToFind <=0) break;
-
         }
-
+    
         if (lastRecord == null) {
-            System.err.println("No ECG record found for patient " + patientId);
-            return;
+            System.err.println("No ECG record found for patient " + patient.getPatientId());
+            return false;
         }
-
-        PatientRecord currentRecord = lastRecord;
+    
         double sumOfMeasurements = 0;
         double numOfMeasurements = 0;
-
-        for (int i = 1; i <= patientRecord.size(); i++){
-
-            if (patientRecord.get(patientRecord.size() - i).getTimestamp() < lastRecord.getTimestamp() && patientRecord.get(patientRecord.size() - i).getTimestamp() >= lastRecord.getTimestamp() - 60000){
-
-                if (patientRecord.get(patientRecord.size() - i).getRecordType().equals("ECG")){
-                    currentRecord = patientRecord.get(patientRecord.size() - i);
+    
+        // Calculate the average ECG measurement within the last minute
+        for (int i = patientRecord.size() - 1; i >= 0; i--) {
+            PatientRecord currentRecord = patientRecord.get(i);
+            if (currentRecord.getTimestamp() < lastRecord.getTimestamp() && currentRecord.getTimestamp() >= lastRecord.getTimestamp() - 60000) {
+                if (currentRecord.getRecordType().equals("ECG")) {
                     sumOfMeasurements += currentRecord.getMeasurementValue();
-                    numOfMeasurements ++;
+                    numOfMeasurements++;
                 }
-
-            } else if (patientRecord.get(patientRecord.size() - i).getTimestamp() < lastRecord.getTimestamp() - 60000 ) break;
-
+            } else if (currentRecord.getTimestamp() < lastRecord.getTimestamp() - 60000) {
+                break;
+            }
         }
-
+    
+        if (numOfMeasurements == 0) {
+            System.err.println("No ECG records found within the last minute for patient " + patient.getPatientId());
+            return false;
+        }
+    
         double average = sumOfMeasurements / numOfMeasurements;
-
-        if (Math.abs(lastRecord.getMeasurementValue()) > 1.2 * average || Math.abs(lastRecord.getMeasurementValue()) < 0.8 * average){
-            // We chose these thresholds for ecg, because a deviation of more than 20% is considered significant.
-            triggerAlert(new Alert(patientId, "ECG Abnormal Data Alert", System.currentTimeMillis()));
+    
+        if (Math.abs(lastRecord.getMeasurementValue()) > 1.2 * average || Math.abs(lastRecord.getMeasurementValue()) < 0.8 * average) {
+            // A deviation of more than 20% is considered significant.
+            triggerAlert(new Alert(patient.getPatientId(), "ECG Abnormal Data Alert", System.currentTimeMillis()));
+            return true;
         }
-
+    
+        return false;
     }
 
 }
