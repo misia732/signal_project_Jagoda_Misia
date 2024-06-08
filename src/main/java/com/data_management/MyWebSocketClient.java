@@ -55,20 +55,4 @@ public class MyWebSocketClient extends WebSocketClient{
             System.err.println("Invalid message format: " + message);
         }
     }
-
-    public static void main(String[] args) {
-        String serverUri = "ws://localhost:8080"; // Replace with your WebSocket server URI
-        DataStorage storage = new DataStorage();
-        try {
-            MyWebSocketClient client = new MyWebSocketClient(new URI(serverUri), storage);
-            client.connect();
-
-            // Keep the main thread alive to keep the client running
-            while (true) {
-                Thread.sleep(1000);
-            }
-        } catch (URISyntaxException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 }
