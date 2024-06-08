@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.alerts.AlertGenerator;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Manages storage and retrieval of patient data within a healthcare monitoring
@@ -15,12 +17,17 @@ import com.alerts.AlertGenerator;
 public class DataStorage {
     private Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.
     private String dataToProcess;
+    private Lock lock; // lock to ensure thread safety
     /**
      * Constructs a new instance of DataStorage, initializing the underlying storage
      * structure.
      */
     public DataStorage() {
+
+
         this.patientMap = new HashMap<>();
+        this.lock = new ReentrantLock();
+        this.dataToProcess = "";
     }
 
     /**
@@ -37,12 +44,17 @@ public class DataStorage {
      *                         milliseconds since the Unix epoch
      */
     public void addPatientData(int patientId, double measurementValue, String recordType, long timestamp) {
-        Patient patient = patientMap.get(patientId);
-        if (patient == null) {
-            patient = new Patient(patientId);
-            patientMap.put(patientId, patient);
+        lock.lock(); // acquire the lock before updating patient data
+        try {
+            Patient patient = patientMap.get(patientId);
+            if (patient == null) {
+                patient = new Patient(patientId);
+                patientMap.put(patientId, patient);
+            }
+            patient.addRecord(measurementValue, recordType, timestamp);
+        } finally {
+            lock.unlock(); // release the lock after updating patient data
         }
-        patient.addRecord(measurementValue, recordType, timestamp);
     }
 
     /**
@@ -59,11 +71,16 @@ public class DataStorage {
      *         range
      */
     public List<PatientRecord> getRecords(int patientId, long startTime, long endTime) {
-        Patient patient = patientMap.get(patientId);
-        if (patient != null) {
-            return patient.getRecords(startTime, endTime);
+        lock.lock(); // acquire the lock before accessing patient records
+        try {
+            Patient patient = patientMap.get(patientId);
+            if (patient != null) {
+                return patient.getRecords(startTime, endTime);
+            }
+            return new ArrayList<>(); // return an empty list if no patient is found
+        } finally {
+            lock.unlock(); // release the lock after accessing patient records
         }
-        return new ArrayList<>(); // return an empty list if no patient is found
     }
 
     /**
@@ -72,7 +89,13 @@ public class DataStorage {
      * @return a list of all patients
      */
     public List<Patient> getAllPatients() {
-        return new ArrayList<>(patientMap.values());
+
+        lock.lock(); // Acquire the lock before accessing patientMap
+        try {
+            return new ArrayList<>(patientMap.values());
+        } finally {
+            lock.unlock(); // Release the lock after accessing patientMap
+        }
     }
 
     /**
@@ -83,34 +106,75 @@ public class DataStorage {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        // DataReader is not defined in this scope, should be initialized appropriately.
-        // DataReader reader = new SomeDataReaderImplementation("path/to/data");
         DataStorage storage = new DataStorage();
-
-        // Assuming the reader has been properly initialized and can read data into the
-        // storage
-        // reader.readData(storage);
-
-        // Example of using DataStorage to retrieve and print records for a patient
-        List<PatientRecord> records = storage.getRecords(1, 1700000000000L, 1800000000000L);
-        for (PatientRecord record : records) {
-            System.out.println("Record for Patient ID: " + record.getPatientId() +
-                    ", Type: " + record.getRecordType() +
-                    ", Data: " + record.getMeasurementValue() +
-                    ", Timestamp: " + record.getTimestamp());
-        }
-
         // Initialize the AlertGenerator with the storage
         AlertGenerator alertGenerator = new AlertGenerator(storage);
 
-        // Evaluate all patients' data to check for conditions that may trigger alerts
-        for (Patient patient : storage.getAllPatients()) {
-            alertGenerator.evaluateData(patient);
+        // Continuously monitor and evaluate patient data
+        while (true) {
+            // Process incoming real-time data
+            storage.processData();
+
+            // Evaluate all patients' data to check for conditions that may trigger alerts
+            for (Patient patient : storage.getAllPatients()) {
+                alertGenerator.evaluateData(patient);
+            }
+
+            // Sleep for a certain period before processing the next batch of data
+            try {
+                Thread.sleep(1000); // Sleep for 1 second (adjust as needed)
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void storeData(String line) {
 
-        dataToProcess += line;
+        lock.lock(); // Acquire the lock before updating dataToProcess
+        try {
+            dataToProcess += line;
+            processData(); // Process the newly added data
+        } finally {
+            lock.unlock(); // Release the lock after updating dataToProcess
+        }
+    }
+
+    private void processData() {
+
+        // Split the dataToProcess string into individual data lines
+        String[] dataLines = dataToProcess.split("\\n");
+
+        // Process each data line
+        for (String line : dataLines) {
+            // Split the line into fields (assuming comma-separated values)
+            String[] fields = line.split(",");
+
+            // Check if the line has the expected number of fields
+            if (fields.length == 4) {
+                try {
+                    // Extract patient information from the fields
+                    int patientId = Integer.parseInt(fields[0]);
+                    String data = fields[1];
+                    String label = fields[2];
+                    long timestamp = Long.parseLong(fields[3]);
+
+                    // Update patient records
+                    addPatientData(patientId, Double.parseDouble(data), label, timestamp);
+                } catch (NumberFormatException e) {
+                    // Handle parsing errors if necessary
+                    System.err.println("Error parsing data: " + line);
+                    e.printStackTrace();
+                }
+            } else {
+                // Handle invalid data format if necessary
+                System.err.println("Invalid data format: " + line);
+            }
+        }
+
+        // Clear the dataToProcess string after processing
+        dataToProcess = "";
+
+
     }
 }

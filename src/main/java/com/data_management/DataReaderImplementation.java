@@ -12,6 +12,12 @@ public class DataReaderImplementation implements DataReader{
     public DataReaderImplementation(String outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
+
+    @Override
+    public void readRealTimeData(DataStorage dataStorage, int websocketPort) throws IOException {
+
+    }
+
     @Override
     public void readData(DataStorage dataStorage) throws IOException {
         File dir = new File(outputDirectory);
