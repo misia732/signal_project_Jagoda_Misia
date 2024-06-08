@@ -71,8 +71,12 @@ class DataStorageTest {
         // Retrieve records for the patient within a time range
         List<PatientRecord> records = storage.getRecords(1, 1714376789050L, 1714376799050L);
 
-        // Check if the rapid drop alert is triggered
+        // check rapid drop saturation, should trigger alert
         assertTrue(alertGenerator.checkRapidDropAlert(patient, records));
+
+        // checking healthy state, should not trigger alert
+
+
 
     }
 
