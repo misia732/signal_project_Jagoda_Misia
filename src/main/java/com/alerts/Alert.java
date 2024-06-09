@@ -1,7 +1,7 @@
 package com.alerts;
 
 // Represents an alert
-public class Alert {
+public class Alert implements AlertInterface{
     private int patientId;
     private String condition;
     private long timestamp;
@@ -12,8 +12,7 @@ public class Alert {
         this.condition = condition;
         this.timestamp = timestamp;
 
-        // Print the details of the alert
-        System.out.println("Alert created!!! \nPatient ID: " + patientId + "\nCondition: " + condition + "\nTimestamp: " + timestamp);
+        triggerAlert();
     }
 
     public int getPatientId() {
@@ -26,5 +25,9 @@ public class Alert {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public void triggerAlert() {
+        System.out.println("Alert created!!! \nPatient ID: " + patientId + "\nCondition: " + condition + "\nTimestamp: " + timestamp);
     }
 }
