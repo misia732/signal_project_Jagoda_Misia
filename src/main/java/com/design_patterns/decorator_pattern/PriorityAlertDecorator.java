@@ -1,6 +1,7 @@
-package com.design_patterns;
+package com.design_patterns.decorator_pattern;
 
 import com.alerts.Alert;
+import com.design_patterns.decorator_pattern.AlertDecorator;
 
 public class PriorityAlertDecorator extends AlertDecorator {
     

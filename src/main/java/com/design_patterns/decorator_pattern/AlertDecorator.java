@@ -1,4 +1,4 @@
-package com.design_patterns;
+package com.design_patterns.decorator_pattern;
 
 import com.alerts.Alert;
 import com.alerts.AlertInterface;
