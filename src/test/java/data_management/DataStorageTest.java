@@ -18,7 +18,7 @@ class DataStorageTest {
         // TODO Perhaps you can implement a mock data reader to mock the test data?
         // DataReader reader
         // DataStorage storage = new DataStorage(reader);
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         storage.addPatientData(1, 100.0, "WhiteBloodCells", 1714376789050L);
         storage.addPatientData(1, 200.0, "WhiteBloodCells", 1714376789051L);
 
@@ -30,7 +30,7 @@ class DataStorageTest {
     @Test
     void testLowSaturationAlert() {
 
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         Patient patient = new Patient(1);
         Patient patient2 = new Patient(2);
@@ -59,7 +59,7 @@ class DataStorageTest {
     @Test
     void testSaturationDrop() {
 
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         Patient patient = new Patient(1);
 
@@ -83,7 +83,7 @@ class DataStorageTest {
     @Test
     void testBloodPressureTrendAlert(){
 
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         Patient patient1 = new Patient(1);
         Patient patient2 = new Patient(2);
@@ -147,7 +147,7 @@ class DataStorageTest {
 
     @Test
     void testBloodPressureCriticalThresholdAlert(){
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         Patient patient1 = new Patient(1);
         Patient patient2 = new Patient(2);
@@ -193,8 +193,8 @@ class DataStorageTest {
 
     @Test
     void testECGAlert(){
-        
-        DataStorage storage = new DataStorage();
+
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         Patient patient1 = new Patient(1);
         Patient patient2 = new Patient(2);
@@ -235,7 +235,7 @@ class DataStorageTest {
     @Test
     void testHypotensiveApoxemiaAlert() {
 
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         AlertGenerator alertGenerator = new AlertGenerator(storage);
         Patient patient = new Patient(1);
         Patient patient2 = new Patient(2);

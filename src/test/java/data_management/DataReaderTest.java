@@ -35,12 +35,12 @@ public class DataReaderTest {
             writer.close();
 
             // Perform the test
-            DataStorage dataStorage = new DataStorage();
+            DataStorage storage = DataStorage.getInstance();
             DataReaderImplementation dataReader = new DataReaderImplementation(TEST_DIRECTORY);
-            dataReader.readData(dataStorage);
+            dataReader.readData(storage);
 
             // Verify that data was added to the data storage
-            assert dataStorage.getAllPatients().size() == 2;
+            assert storage.getAllPatients().size() == 2;
 
             // Clean up test data
             assert file.delete();
