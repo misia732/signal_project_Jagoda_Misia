@@ -1,9 +1,14 @@
 package com.data_management;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class DataReaderImplementation implements DataReader{
 
@@ -15,7 +20,34 @@ public class DataReaderImplementation implements DataReader{
 
     @Override
     public void readRealTimeData(DataStorage dataStorage, int websocketPort) throws IOException {
+        String websocketUrl = "ws://localhost:" + websocketPort;
+        try {
+            MyWebSocketClient client = new MyWebSocketClient(new URI(websocketUrl)) {
+                @Override
+                public void onOpen(ServerHandshake handshakedata) {
+                    System.out.println("Connected to WebSocket server");
+                }
 
+                @Override
+                public void onMessage(String message) {
+                    // Store the received message in dataStorage
+                    dataStorage.storeData(message);
+                }
+
+                @Override
+                public void onClose(int code, String reason, boolean remote) {
+                    System.out.println("Disconnected from WebSocket server");
+                }
+
+                @Override
+                public void onError(Exception ex) {
+                    ex.printStackTrace();
+                }
+            };
+            client.connect();
+        } catch (URISyntaxException e) {
+            throw new IOException("Invalid WebSocket URI", e);
+        }
     }
 
     @Override

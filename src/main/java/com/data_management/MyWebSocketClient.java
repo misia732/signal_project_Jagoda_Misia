@@ -1,7 +1,6 @@
 package com.data_management;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -10,7 +9,7 @@ public class MyWebSocketClient extends WebSocketClient{
 
     private DataStorage dataStorage;
 
-    public MyWebSocketClient(URI serverURI, DataStorage dataStorage){
+    public MyWebSocketClient(URI serverURI){
         super(serverURI);
         this.dataStorage = dataStorage;
     }

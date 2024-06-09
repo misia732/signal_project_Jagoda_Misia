@@ -24,7 +24,6 @@ public class DataStorage {
      */
     public DataStorage() {
 
-
         this.patientMap = new HashMap<>();
         this.lock = new ReentrantLock();
         this.dataToProcess = "";
@@ -137,6 +136,15 @@ public class DataStorage {
             processData(); // Process the newly added data
         } finally {
             lock.unlock(); // Release the lock after updating dataToProcess
+        }
+    }
+
+    public String getDataToProcess() {
+        lock.lock(); // Acquire the lock before accessing dataToProcess
+        try {
+            return dataToProcess;
+        } finally {
+            lock.unlock(); // Release the lock after accessing dataToProcess
         }
     }
 
