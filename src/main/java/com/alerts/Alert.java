@@ -5,6 +5,7 @@ public class Alert implements AlertInterface{
     private int patientId;
     private String condition;
     private long timestamp;
+    public boolean triggered;
 
 
     public Alert(int patientId, String condition, long timestamp) {
@@ -29,5 +30,15 @@ public class Alert implements AlertInterface{
 
     public void triggerAlert() {
         System.out.println("Alert created!!! \nPatient ID: " + patientId + "\nCondition: " + condition + "\nTimestamp: " + timestamp);
+        this.triggered = true;
     }
+
+    public boolean isTriggered() {
+        return triggered;
+    }
+
+    public void resetTriggered() {
+        this.triggered = false;
+    }
+
 }
