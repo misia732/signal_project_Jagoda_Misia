@@ -1,9 +1,9 @@
-package com.design_patterns;
+package com.design_patterns.factory_pattern;
 
-import com.alerts.Alert;
 import com.alerts.BloodOxygenAlert;
+import com.design_patterns.factory_pattern.AlertFactory;
 
-public class BloodOxygenAlertFactory extends AlertFactory{
+public class BloodOxygenAlertFactory extends AlertFactory {
     
     @Override
     public BloodOxygenAlert createAlert(int patientId, String condition, long timestamp){

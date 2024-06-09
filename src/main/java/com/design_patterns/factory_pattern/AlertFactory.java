@@ -1,4 +1,4 @@
-package com.design_patterns;
+package com.design_patterns.factory_pattern;
 
 import com.alerts.Alert;
 

@@ -4,29 +4,45 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.alerts.AlertGenerator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import com.alerts.AlertGenerator;
 
 /**
  * Manages storage and retrieval of patient data within a healthcare monitoring
  * system.
  * This class serves as a repository for all patient records, organized by
  * patient IDs.
+ * Implemented as singleton.
  */
 public class DataStorage {
     private Map<Integer, Patient> patientMap; // Stores patient objects indexed by their unique patient ID.
     private String dataToProcess;
     private Lock lock; // lock to ensure thread safety
+
+    // Private static variable that holds the single instance of the class
+    private static volatile DataStorage instance;
+
     /**
      * Constructs a new instance of DataStorage, initializing the underlying storage
      * structure.
      */
-    public DataStorage() {
-
+    private DataStorage() {
         this.patientMap = new HashMap<>();
         this.lock = new ReentrantLock();
         this.dataToProcess = "";
+    }
+
+    // Public static method to provide access to the instance
+    public static DataStorage getInstance() {
+        if (instance == null) {
+            synchronized (DataStorage.class) {
+                if (instance == null) {
+                    instance = new DataStorage();
+                }
+            }
+        }
+        return instance;
     }
 
     /**
@@ -88,7 +104,6 @@ public class DataStorage {
      * @return a list of all patients
      */
     public List<Patient> getAllPatients() {
-
         lock.lock(); // Acquire the lock before accessing patientMap
         try {
             return new ArrayList<>(patientMap.values());
@@ -101,11 +116,11 @@ public class DataStorage {
      * The main method for the DataStorage class.
      * Initializes the system, reads data into storage, and continuously monitors
      * and evaluates patient data.
-     * 
+     *
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        DataStorage storage = new DataStorage();
+        DataStorage storage = DataStorage.getInstance();
         // Initialize the AlertGenerator with the storage
         AlertGenerator alertGenerator = new AlertGenerator(storage);
 
@@ -129,7 +144,6 @@ public class DataStorage {
     }
 
     public void storeData(String line) {
-
         lock.lock(); // Acquire the lock before updating dataToProcess
         try {
             dataToProcess += line;
@@ -149,7 +163,6 @@ public class DataStorage {
     }
 
     private void processData() {
-
         // Split the dataToProcess string into individual data lines
         String[] dataLines = dataToProcess.split("\\n");
 
@@ -182,7 +195,5 @@ public class DataStorage {
 
         // Clear the dataToProcess string after processing
         dataToProcess = "";
-
-
     }
 }

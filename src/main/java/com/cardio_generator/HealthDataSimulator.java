@@ -28,6 +28,7 @@ import java.util.ArrayList;
 /**
  * Main class for the project responsible for simulating health data and managing output strategies.
  * It interacts and makes calls to other respective classes.
+ * Implemented as singleton.
  */
 public class HealthDataSimulator {
 
@@ -35,6 +36,25 @@ public class HealthDataSimulator {
     private static ScheduledExecutorService scheduler;
     private static OutputStrategy outputStrategy = new ConsoleOutputStrategy(); // Default output strategy
     private static final Random random = new Random();
+    private static volatile HealthDataSimulator instance;
+
+    // private constructor to prevent instantiation
+    private HealthDataSimulator() {
+        // Initialization code here
+    }
+
+    // Public static method to provide access to the instance
+    // Public static method to provide access to the instance
+    public static HealthDataSimulator getInstance() {
+        if (instance == null) {
+            synchronized (HealthDataSimulator.class) {
+                if (instance == null) {
+                    instance = new HealthDataSimulator();
+                }
+            }
+        }
+        return instance;
+    }
 
     /**
      * Main method to start the health data simulation.
