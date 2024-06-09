@@ -10,8 +10,9 @@ import java.util.List;
 public class BloodPressureStrategy implements AlertStrategy {
     @Override
     public boolean checkAlert(Patient patient, List<PatientRecord> records) {
-        checkBloodPressureTrend(patient, records);
-        return checkBloodPressureCriticalThreshold(patient, records);
+
+        return (checkBloodPressureTrend(patient, records) || checkBloodPressureCriticalThreshold(patient, records));
+
     }
 
     public boolean checkBloodPressureTrend(Patient patient, List<PatientRecord> records) {

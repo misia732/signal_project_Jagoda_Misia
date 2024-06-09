@@ -13,25 +13,25 @@ public class OxygenSaturationStrategy implements AlertStrategy {
     @Override
     public boolean checkAlert(Patient patient, List<PatientRecord> records) {
 
-        checkLowSaturationAlert(patient, records);
-        return checkRapidDropAlert(patient, records);
+        return (checkLowSaturationAlert(patient, records) || checkRapidDropAlert(patient, records));
+
 
     }
 
     public boolean checkRapidDropAlert(Patient patient, List<PatientRecord> records) {
         int lastIndex = records.size() - 1;
         PatientRecord currentRecord = records.get(lastIndex);
-        System.out.println(currentRecord);
 
-        // Start from the second last record and iterate backwards
-        for (int i = lastIndex; i >= 0; i--) {
-            PatientRecord previousRecord = records.get(i-1);
+        // Start from the second-to-last record and iterate backwards
+        for (int i = lastIndex; i > 0; i--) {
+
+            PatientRecord previousRecord = records.get(i - 1);
 
             if (previousRecord.getRecordType().equals("BloodSaturation")) {
                 // Found the previous saturation record
 
                 if ((currentRecord.getTimestamp() - previousRecord.getTimestamp()) <= 600000 &&
-                        ((currentRecord.getMeasurementValue() - previousRecord.getMeasurementValue()) /  previousRecord.getMeasurementValue()) <= - 0.05) {
+                        ((currentRecord.getMeasurementValue() - previousRecord.getMeasurementValue()) / previousRecord.getMeasurementValue()) <= -0.05) {
 
                     BloodOxygenAlertFactory bloodOxygenAlert = new BloodOxygenAlertFactory();
                     bloodOxygenAlert.createAlert(patient.getPatientId(), "Blood oxygen saturation level dropped by 5% or more within 10 minutes.", currentRecord.getTimestamp());
